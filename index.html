@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html><head><style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
+.wrap{padding:24px 20px;min-width:1450px;transform-origin: top left;}
+.canvas{display:flex;gap:70px;align-items:flex-start;position:relative;}
+
+/* LAYER ZONES */
+.zone{border-radius:10px;padding:8px;flex-shrink:0;}
+.zone-title{font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;padding:2px 6px;border-radius:4px;display:inline-block;}
+
+.z-raw{background:rgba(231,200,255,.13);border:1px solid #c4a0e8;}
+.z-raw .zone-title{background:#e7c8ff;color:#5b259a;}
+
+.z-c360{background:rgba(167,218,255,.13);border:1px solid #7ab8e8;}
+.z-c360 .zone-title{background:#cce5ff;color:#0a5a8a;}
+
+.z-mart{background:rgba(180,235,200,.13);border:1px solid #6dc48a;}
+.z-mart .zone-title{background:#c8f0d4;color:#1a6b35;}
+
+.z-looker{background:rgba(255,220,150,.13);border:1px solid #e0b855;}
+.z-looker .zone-title{background:#fff0c0;color:#8a5a00;}
+
+.z-dash{background:rgba(220,240,255,.15);border:1px dashed #7aaed4;}
+.z-dash .zone-title{background:#d0eaff;color:#1a4f7a;}
+
+.z-bureau{background:rgba(245,245,245,.15);border:1px dashed #bbb;}
+.z-bureau .zone-title{background:#eee;color:#555;}
+
+/* BOXES */
+.box{border-radius:6px;padding:5px 8px;font-size:11px;line-height:1.35;cursor:pointer;transition:filter .15s;border:1px solid transparent;white-space:nowrap;position:relative;}
+.box:hover{filter:brightness(.93);}
+.box .label{font-weight:500;font-size:11px;}
+.box .sub{font-size:9.5px;opacity:.75;margin-top:1px;}
+.box .badge{display:inline-block;font-size:8.5px;padding:1px 4px;border-radius:3px;margin-top:2px;font-weight:500;}
+
+.b-serving{background:#e8d9f8;border-color:#c4a0e8;color:#3d1d70;}
+.b-manual{background:#ffeacc;border-color:#e0b855;color:#6b3e00;}
+.b-adhoc{background:#d4eef8;border-color:#7ab8e8;color:#0a3a5c;}
+.b-mart{background:#c8f0d4;border-color:#4db86b;color:#0e4a22;}
+.b-looker{background:#fff0c0;border-color:#d4a500;color:#5a3a00;}
+.b-page{background:#d0e8ff;border-color:#4a90d0;color:#0a3060;}
+.b-bureau{background:#f5f5f5;border-color:#ccc;color:#444;}
+.b-crm{background:#ffe0f0;border-color:#d070a0;color:#6a0040;}
+
+.col{display:flex;flex-direction:column;gap:8px;}
+.row-group{display:flex;gap:6px;align-items:flex-start;}
+.section-label{font-size:9px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;border-bottom:1px solid var(--color-border-tertiary);padding-bottom:2px;}
+
+/* arrows */
+.arrow-layer{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
+
+/* tooltip */
+#tip{position:fixed;background:#fff;border:0.5px solid #ccc;border-radius:6px;padding:8px 10px;font-size:11px;max-width:260px;line-height:1.5;z-index:9999;pointer-events:none;display:none;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+#tip strong{display:block;margin-bottom:3px;font-size:12px;}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:6px 8px;background:var(--color-background-secondary);border-radius:8px;}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--color-text-secondary);}
+.leg-dot{width:10px;height:10px;border-radius:2px;border:1px solid;}
+
+/* edit mode highlight */
+[data-editable="true"]{outline:1px dashed #bbb !important;border-radius:2px;}
+
+/* product filter buttons */
+.filter-btn{padding:5px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-family:inherit;font-size:11px;font-weight:500;transition:all .15s;outline:none;}
+.filter-btn:hover{background:#f3f4f6;border-color:#9ca3af;}
+.filter-btn.active{background:#e2e8f0 !important;border-color:#cbd5e0 !important;font-weight:600 !important;}
+
+/* cost scenario card */
+.cost-card {
+  width: 440px;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: inherit;
+  color: #334155;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+.cost-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+.cost-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.cost-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #edf2f7;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-group label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+.input-group input {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #334155;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-group input:focus {
+  border-color: #3182ce;
+}
+.cost-results {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sc-card {
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+}
+/* Distinct background colors for each scenario card */
+.sc-card-1 {
+  background: #eff6ff; /* Light Blue */
+  border-color: #bfdbfe;
+}
+.sc-card-2 {
+  background: #fef3c7; /* Light Amber/Yellow */
+  border-color: #fde68a;
+}
+.sc-card-3 {
+  background: #fff5f5; /* Light Red/Pink */
+  border-color: #fed7d7;
+}
+.sc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 11px;
+  color: #1e293b;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+}
+.sc-title-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.sc-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  margin-bottom: 3px;
+}
+.sc-row span:last-child {
+  font-weight: 600;
+}
+.sc-row-main {
+  font-size: 11px;
+  border-top: 1px dashed rgba(0,0,0,0.05);
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
+/* Dashboard cost bar chart styling */
+.chart-container {
+  margin-top: 15px;
+  background: #fff;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 12px;
+}
+.chart-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 10px;
+}
+.chart-label {
+  width: 95px;
+  font-weight: 500;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chart-bar-wrap {
+  flex-grow: 1;
+  background: #f1f5f9;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 8px;
+  position: relative;
+}
+.chart-bar {
+  height: 100%;
+  background: #3182ce;
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 6px;
+}
+.chart-val {
+  width: 60px;
+  text-align: right;
+  font-weight: 600;
+  color: #1e293b;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #475569;
+}
+.leg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid;
+}
+</style>
+</head><body>
+<div id="tip"></div>
+<div class="wrap" style="min-width: 1950px;">
+<div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;">Sales Dashboard — Data Architecture Flow</div>
+
+<div id="product-filter" style="display:flex;gap:6px;margin-bottom:10px;align-items:center;font-family:system-ui,sans-serif;font-size:11px;">
+  <span style="font-weight:600;color:#555;margin-right:4px;">Bộ lọc sản phẩm:</span>
+  <button class="filter-btn active" data-product="all">Tất cả</button>
+  <button class="filter-btn" data-product="loan" style="border-left:4px solid #3182ce;">🏦 Loan</button>
+  <button class="filter-btn" data-product="cc" style="border-left:4px solid #e53e3e;">💳 Credit Card</button>
+  <button class="filter-btn" data-product="fd" style="border-left:4px solid #38a169;">💰 Fixed Deposit</button>
+  <button class="filter-btn" data-product="od" style="border-left:4px solid #d69e2e;">📉 Overdraft</button>
+  <button class="filter-btn" data-product="account" style="border-left:4px solid #805ad5;">📁 Account</button>
+  <button class="filter-btn" data-product="debit" style="border-left:4px solid #319795;">💳 Debit Card</button>
+  <button class="filter-btn" data-product="cust" style="border-left:4px solid #d53f8c;">👤 Customer Info</button>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#e8d9f8;border-color:#c4a0e8;"></div> Raw C360 (Serving)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ffeacc;border-color:#e0b855;"></div> Manual Upload (BI_WS)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#d4eef8;border-color:#7ab8e8;"></div> Adhoc Intermediate (BI_WS)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#ffe0f0;border-color:#d070a0;"></div> CRM / Config</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#c8f0d4;border-color:#4db86b;"></div> Mart / Custom Query Source</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#d0e8ff;border-color:#4a90d0;"></div> Dashboard Page (Looker Studio)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f8c8a0;border-color:#e0b855;"></div> ⚠ &gt;100MB source</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f8c0c0;border-color:#e24b4a;"></div> 🔴 &gt;500MB — cần optimize</div>
+</div>
+<div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:15px;padding:0 4px;">Hover vào bất kỳ ô nào để xem chi tiết PK, partition, số charts và est. MB.</div>
+
+<div class="main-layout" style="display:flex;gap:24px;align-items:flex-start;">
+<div class="canvas" id="canvas" data-connections='[{"from":"s_lns","to":"a_ln_dg","product":"loan"},{"from":"a_ln_dg","to":"ds_ln_m","product":"loan"},{"from":"s_lns","to":"ds_ov_ln","product":"loan"},{"from":"s_lns","to":"ds_ln_d","product":"loan"},{"from":"ds_ln_m","to":"pg_ln","product":"loan"},{"from":"ds_ln_d","to":"pg_ln","product":"loan"},{"from":"ds_ov_ln","to":"pg_ov","product":"loan"},{"from":"s_crd","to":"a_cc_agg","product":"cc"},{"from":"s_crd_txn","to":"a_cc_agg","product":"cc"},{"from":"s_crd","to":"a_cc_dtl","product":"cc"},{"from":"a_cc_agg","to":"ds_cc_m","product":"cc"},{"from":"a_cc_dtl","to":"ds_cc_m","product":"cc"},{"from":"a_mort","to":"ds_cc_m","product":"cc"},{"from":"a_ln_dg","to":"ds_cc_m","product":"cc"},{"from":"a_cc_agg","to":"ds_cc_d","product":"cc"},{"from":"a_cc_agg","to":"ds_ov_cc","product":"cc"},{"from":"ds_cc_m","to":"pg_cc","product":"cc"},{"from":"ds_cc_d","to":"pg_cc","product":"cc"},{"from":"ds_ov_cc","to":"pg_ov","product":"cc"},{"from":"s_fd","to":"a_fd_v2","product":"fd"},{"from":"a_fd_v2","to":"ds_fd_m","product":"fd"},{"from":"s_cust","to":"ds_fd_m","product":"fd"},{"from":"s_fd","to":"ds_ov_fd","product":"fd"},{"from":"s_fd","to":"ds_fd_d","product":"fd"},{"from":"ds_fd_m","to":"pg_fd","product":"fd"},{"from":"ds_fd_m","to":"pg_ov","product":"fd"},{"from":"ds_ov_fd","to":"pg_ov","product":"fd"},{"from":"ds_fd_d","to":"pg_fd","product":"fd"},{"from":"s_od","to":"ds_od_m","product":"od"},{"from":"s_od","to":"ds_ov_od","product":"od"},{"from":"s_od","to":"ds_od_d","product":"od"},{"from":"ds_od_m","to":"pg_od","product":"od"},{"from":"ds_ov_od","to":"pg_ov","product":"od"},{"from":"ds_od_d","to":"pg_od","product":"od"},{"from":"s_accnt_b","to":"a_acc_m","product":"account"},{"from":"s_accnt_i","to":"a_acc_m","product":"account"},{"from":"a_acc_m","to":"ds_acc_m","product":"account"},{"from":"s_accnt_b","to":"ds_acc_ov","product":"account"},{"from":"s_accnt_b","to":"ds_acc_d","product":"account"},{"from":"ds_acc_m","to":"pg_acc","product":"account"},{"from":"ds_acc_ov","to":"pg_ov","product":"account"},{"from":"ds_acc_d","to":"pg_acc","product":"account"},{"from":"s_dbt","to":"ds_db_d","product":"debit"},{"from":"s_dbt","to":"ds_db_m","product":"debit"},{"from":"s_dbt","to":"ds_db_mgmt","product":"debit"},{"from":"ds_db_d","to":"pg_db","product":"debit"},{"from":"ds_db_m","to":"pg_db","product":"debit"},{"from":"ds_db_mgmt","to":"pg_db","product":"debit"},{"from":"s_cust","to":"ds_cu_ttl","product":"cust"},{"from":"s_cust_add","to":"ds_cu_ttl","product":"cust"},{"from":"s_bnk","to":"ds_cu_ttl","product":"cust"},{"from":"s_cust","to":"ds_cu_agg","product":"cust"},{"from":"s_cust_add","to":"ds_cu_agg","product":"cust"},{"from":"s_cust_cls","to":"ds_cu_agg","product":"cust"},{"from":"a_cc_agg","to":"ds_cu_ttl","product":"cust"},{"from":"ds_cu_ttl","to":"pg_cu","product":"cust"},{"from":"ds_cu_agg","to":"pg_cu","product":"cust"},{"from":"s_cust","to":"ds_bday","product":"cust"},{"from":"s_lns","to":"ds_req","product":"loan"},{"from":"s_crd","to":"ds_req","product":"cc"},{"from":"s_fd","to":"ds_req","product":"fd"},{"from":"s_od","to":"ds_req","product":"od"},{"from":"ds_kpi","to":"pg_ov","product":"shared"},{"from":"ds_bday","to":"pg_ov","product":"cust"},{"from":"ds_req","to":"pg_ov","product":"shared"}]'>
+
+<!-- COL 1: RAW C360 -->
+<div class="zone z-raw" style="min-width:148px;">
+  <div class="zone-title">Raw C360 (Serving)</div>
+  <div class="col">
+    <div class="box b-serving" id="s_lns" data-tip="<strong>c360_lns</strong>Loan data — cho Loan, Overview dashboard.<br>ncb_dp_prod_serving">
+      <div class="label">c360_lns</div><div class="sub">Loan contracts</div>
+    </div>
+    <div class="box b-serving" id="s_crd" data-tip="<strong>c360_crd_dtl</strong>Credit card detail — cho CC dashboard.<br>ncb_dp_prod_serving">
+      <div class="label">c360_crd_dtl</div><div class="sub">Credit card detail</div>
+    </div>
+    <div class="box b-serving" id="s_crd_txn" data-tip="<strong>c360_crdt_crd_trnsctn</strong>Credit card transactions.<br>ncb_dp_prod_serving">
+      <div class="label">c360_crdt_crd_trnsctn</div><div class="sub">CC transactions</div>
+    </div>
+    <div class="box b-serving" id="s_fd" data-tip="<strong>c360_fxd_dpst</strong>Fixed deposit — cho FD, Overview.<br>ncb_dp_prod_serving">
+      <div class="label">c360_fxd_dpst</div><div class="sub">Fixed deposit</div>
+    </div>
+    <div class="box b-serving" id="s_od" data-tip="<strong>c360_ovrdrft_lmt</strong>Overdraft limit — cho Overdraft, Loan monthly.<br>ncb_dp_prod_serving">
+      <div class="label">c360_ovrdrft_lmt</div><div class="sub">Overdraft limit</div>
+    </div>
+    <div class="box b-serving" id="s_accnt_b" data-tip="<strong>c360_cs_accnt_blncs</strong>Account balance — cho Account, Customer Info.<br>ncb_dp_prod_serving">
+      <div class="label">c360_cs_accnt_blncs</div><div class="sub">Account balance</div>
+    </div>
+    <div class="box b-serving" id="s_accnt_i" data-tip="<strong>c360_cs_accnt_infrmtn</strong>Account info — cho Account, Debit, Cust.<br>ncb_dp_prod_serving">
+      <div class="label">c360_cs_accnt_infrmtn</div><div class="sub">Account info</div>
+    </div>
+    <div class="box b-serving" id="s_dbt" data-tip="<strong>c360_dbt_crd</strong>Debit card — cho Debit Card, Account monthly.<br>ncb_dp_prod_serving">
+      <div class="label">c360_dbt_crd</div><div class="sub">Debit card</div>
+    </div>
+    <div class="box b-serving" id="s_cust" data-tip="<strong>c360_cstmr_dtl</strong>Customer detail — cho FD, CC, Customer Info.<br>ncb_dp_prod_serving">
+      <div class="label">c360_cstmr_dtl</div><div class="sub">Customer detail</div>
+    </div>
+    <div class="box b-serving" id="s_cust_add" data-tip="<strong>c360_cstmr_addtnl_dtl</strong>Customer additional detail — dimension bảng hầu hết queries.<br>ncb_dp_prod_serving">
+      <div class="label">c360_cstmr_addtnl_dtl</div><div class="sub">Customer addtl detail</div>
+    </div>
+    <div class="box b-serving" id="s_cust_cls" data-tip="<strong>c360_cstmr_clssfctn</strong>Customer classification / sale_code mapping — dimension chính cho RLS.<br>ncb_dp_prod_serving">
+      <div class="label">c360_cstmr_clssfctn</div><div class="sub">Cust classification · RLS</div>
+    </div>
+    <div class="box b-serving" id="s_bnk" data-tip="<strong>c360_bnk_rltnshp</strong>Bank relationship — cho Customer Info.<br>ncb_dp_prod_serving">
+      <div class="label">c360_bnk_rltnshp</div><div class="sub">Bank relationship</div>
+    </div>
+  </div>
+</div>
+
+<!-- COL 2: BI_WS Adhoc Intermediate -->
+<div class="col" style="gap:8px;">
+
+  <div class="zone z-c360" style="min-width:168px;margin-top:0;">
+    <div class="zone-title">BI_WS — Adhoc Intermediate</div>
+    <div class="col">
+      <div class="box b-adhoc" id="a_cc_agg" data-tip="<strong>adhoc_bi_card_agg_monthly_update</strong>CC aggregation monthly — intermediate layer cho CC, Customer Info, Overview.<br>Tạo từ: c360_crd_dtl + transactions<br>ncb_dp_prod_dto_bi_ws">
+        <div class="label">adhoc_bi_card_agg_monthly_update</div><div class="sub">CC agg monthly</div>
+        <span class="badge" style="background:#b3daf8;color:#0a3a5c;">CC · Cust · Overview</span>
+      </div>
+      <div class="box b-adhoc" id="a_cc_dtl" data-tip="<strong>adhoc_ai_cc_detail_update</strong>CC detail per card — intermediate layer cho CC monthly.<br>ncb_dp_prod_dto_bi_ws">
+        <div class="label">adhoc_ai_cc_detail_update</div><div class="sub">CC detail update</div>
+        <span class="badge" style="background:#b3daf8;color:#0a3a5c;">CC monthly</span>
+      </div>
+      <div class="box b-adhoc" id="a_fd_v2" data-tip="<strong>bi_fd_product_deposit_v2</strong>FD product mapping — intermediate cho FD monthly.<br>ncb_dp_prod_dto_bi_ws">
+        <div class="label">bi_fd_product_deposit_v2</div><div class="sub">FD product map</div>
+        <span class="badge" style="background:#b3daf8;color:#0a3a5c;">FD monthly</span>
+      </div>
+      <div class="box b-adhoc" id="a_acc_m" data-tip="<strong>adhoc_bi_cs_account_monthly / adhoc_bi_sd_cs_account_monthly_v2</strong>Account monthly agg — intermediate cho Account.<br>ncb_dp_prod_dto_bi_ws">
+        <div class="label">adhoc_bi_sd_cs_account_monthly_v2</div><div class="sub">Account monthly agg</div>
+        <span class="badge" style="background:#b3daf8;color:#0a3a5c;">Account</span>
+      </div>
+      <div class="box b-adhoc" id="a_ln_dg" data-tip="<strong>bi_lending_debtgroup / bi_lending_paidoff_monthly / bi_lending_prepaid_monthly / bi_lending_financial_solution</strong>Lending intermediate tables — cho Loan monthly, CC monthly.<br>ncb_dp_prod_dto_bi_ws">
+        <div class="label">bi_lending_debtgroup +3</div><div class="sub">Lending intermediates</div>
+        <span class="badge" style="background:#b3daf8;color:#0a3a5c;">Loan monthly</span>
+      </div>
+      <div class="box b-adhoc" id="a_mort" data-tip="<strong>mortgageapproval_logs_de_logs_curated</strong>Mortgage approval logs — cho CC monthly.<br>ncb_dp_prod_bi (not bi_ws)">
+        <div class="label">mortgageapproval_logs_curated</div><div class="sub">Mortgage logs</div>
+        <span class="badge" style="background:#b3daf8;color:#0a3a5c;">CC monthly</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COL 3: MART / Final sources — 2 sub-columns -->
+<div class="zone z-mart" style="min-width:340px;">
+  <div class="zone-title">Mart Layer — Custom Query Sources</div>
+  <div style="display:flex;gap:25px;align-items:flex-start;">
+
+    <!-- LEFT: Detail / Drilldown (non sale_code+date) -->
+    <div class="col" style="flex:1;">
+      <div class="section-label">Detail / Drilldown</div>
+      <div class="box b-mart" id="ds_kpi" data-tip="<strong>SOURCE: KPI</strong>Email + sale_code + KPI targets + scores.<br>PK: email | Charts: 2 (Overview)<br>EST: 10MB × 2 = 20MB">
+        <div class="label">KPI</div>
+        <div class="sub">Overview · 2 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">PK: email sale_code</span>
+      </div>
+      <div class="box b-mart" id="ds_bday" data-tip="<strong>SOURCE: birthday_alert</strong>Customer birthday alert by cstmr_idntfr.<br>PK: cstmr_idntfr + date | Charts: 1<br>EST: 14MB">
+        <div class="label">birthday_alert</div>
+        <div class="sub">Overview · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">PK: cstmr_idntfr + date</span>
+      </div>
+      <div class="box b-mart" id="ds_req" data-tip="<strong>SOURCE: require_attention_data</strong>Contracts cần chú ý: expiry, overdue, DPD — tất cả products.<br>PK: contract_id + date partition | Charts: 4<br>EST: 38MB × 4 = 152MB">
+        <div class="label">require_attention_data</div>
+        <div class="sub">Overview · 4 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">contract_id + date</span>
+      </div>
+      <div class="box b-mart" id="ds_fd_m" data-tip="<strong>SOURCE: fd_monthly (Overview + FD)</strong>FD monthly detail per contract — dùng chung Overview và FD page.<br>PK: systm_dt + account_number | Charts: 1+12=13<br>EST: 50MB × 13 = 650MB 🔥">
+        <div class="label">fd_monthly</div>
+        <div class="sub">Overview + FD · 13 charts</div>
+        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 650MB · contract_id + date</span>
+      </div>
+      <div class="box b-mart" id="ds_ln_m" data-tip="<strong>SOURCE: lending_monthly</strong>Lending monthly detail per contract — table drilldown.<br>PK: contract_id + date partition | Charts: 10<br>EST: 30MB × 10 = 300MB 🔥">
+        <div class="label">lending_monthly</div>
+        <div class="sub">Loan · 10 charts</div>
+        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 300MB · contract_id + date</span>
+      </div>
+      <div class="box b-mart" id="ds_acc_m" data-tip="<strong>SOURCE: account_monthly</strong>Account monthly per account_number.<br>PK: account_number + date partition | Charts: 5<br>EST: 60MB × 5 = 300MB 🔥">
+        <div class="label">account_monthly</div>
+        <div class="sub">Account · 5 charts</div>
+        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 300MB · acct_no + date</span>
+      </div>
+      <div class="box b-mart" id="ds_od_m" data-tip="<strong>SOURCE: overdraft_monthly</strong>Overdraft monthly detail per account.<br>PK: account_number + date partition | Charts: 7<br>EST: 10MB × 7 = 70MB">
+        <div class="label">overdraft_monthly</div>
+        <div class="sub">Overdraft · 7 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">account_no + date</span>
+      </div>
+      <div class="box b-mart" id="ds_db_d" data-tip="<strong>SOURCE: debit_card_daily</strong>Debit card detail per crd_nmbr — table.<br>PK: crd_nmbr + date partition | Charts: 4<br>EST: 10MB × 4 = 40MB">
+        <div class="label">debit_card_daily</div>
+        <div class="sub">Debit Card · 4 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">crd_nmbr + date</span>
+      </div>
+      <div class="box b-mart" id="ds_cc_d" data-tip="<strong>SOURCE: credit_card_daily</strong>CC daily agg by sale_code.<br>PK: systm_dt + date partition | Charts: 5<br>EST: 10MB × 5 = 50MB">
+        <div class="label">credit_card_daily (CC)</div>
+        <div class="sub">Credit Card · 5 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">systm_dt + date</span>
+      </div>
+      <div class="box b-mart" id="ds_cc_m" data-tip="<strong>SOURCE: credit_card_monthly</strong>CC monthly detail per card_id — table drilldown.<br>PK: card_id + date partition | Charts: 8<br>EST: 22MB × 8 = 176MB 🔥">
+        <div class="label">credit_card_monthly</div>
+        <div class="sub">Credit Card · 8 charts</div>
+        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 176MB · card_id + date</span>
+      </div>
+      <div class="box b-mart" id="ds_cu_ttl" data-tip="<strong>SOURCE: Cust_total</strong>Customer total cross-product balance per cstmr_idntfr.<br>PK: cstmr_idntfr + date partition | Charts: 1<br>EST: 10MB">
+        <div class="label">Cust_total</div>
+        <div class="sub">Customer Info · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">cstmr_idntfr + date</span>
+      </div>
+      <div class="box b-mart" id="ds_cu_agg" data-tip="<strong>SOURCE: Cust_agg</strong>Customer agg monthly by sale_code + rank.<br>PK: report_month + date partition | Charts: 3<br>EST: 350MB × 3 = 1050MB 🔴">
+        <div class="label">Cust_agg</div>
+        <div class="sub">Customer Info · 3 charts</div>
+        <span class="badge" style="background:#f8c0c0;color:#6b0000;">🔴 1050MB · report_month</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Daily Agg (sale_code + date) -->
+    <div class="col" style="flex:1;">
+      <div class="section-label">Daily Agg · sale_code</div>
+      <div class="box b-mart" id="ds_ov_fd" data-tip="<strong>SOURCE: fd_daily (Overview)</strong>FD daily agg by sale_code.<br>PK: sale_code + date partition | Charts: 6<br>EST: 10MB × 6 = 60MB">
+        <div class="label">fd daily</div>
+        <div class="sub">Overview · 6 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_ov_od" data-tip="<strong>SOURCE: overdraft_daily (Overview)</strong>Overdraft daily agg by sale_code.<br>PK: sale_code + date partition | Charts: 1<br>EST: 30MB">
+        <div class="label">overdraft_daily</div>
+        <div class="sub">Overview · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_ov_ln" data-tip="<strong>SOURCE: lending_daily (Overview)</strong>Lending daily agg by sale_code + product group.<br>PK: sale_code + date partition | Charts: 1<br>EST: 10MB">
+        <div class="label">lending_daily (Ov)</div>
+        <div class="sub">Overview · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_ov_cc" data-tip="<strong>SOURCE: credit_card_daily (Overview)</strong>CC daily agg by sale_code.<br>PK: sale_code + date partition | Charts: 1<br>EST: 10MB">
+        <div class="label">credit_card_daily (Ov)</div>
+        <div class="sub">Overview · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_acc_ov" data-tip="<strong>SOURCE: account_daily (Overview)</strong>Account daily agg by sale_code.<br>PK: sale_code + date partition | Charts: 1<br>EST: 20MB">
+        <div class="label">account_daily (Ov)</div>
+        <div class="sub">Overview · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_ln_d" data-tip="<strong>SOURCE: lending_daily (Loan)</strong>Lending daily agg — Loan page.<br>PK: sale_code + date partition | Charts: 5<br>EST: 10MB × 5 = 50MB">
+        <div class="label">lending_daily (Loan)</div>
+        <div class="sub">Loan · 5 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_fd_d" data-tip="<strong>SOURCE: fd_daily (FD page)</strong>FD daily agg by sale_code — FD page.<br>PK: sale_code + date partition | Charts: 2<br>EST: 10MB × 2 = 20MB">
+        <div class="label">fd_daily (FD)</div>
+        <div class="sub">FD · 2 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_acc_d" data-tip="<strong>SOURCE: account_daily (Account)</strong>Account daily agg — Account page.<br>PK: sale_code + date partition | Charts: 5<br>EST: 20MB × 5 = 100MB">
+        <div class="label">account_daily (Acc)</div>
+        <div class="sub">Account · 5 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_od_d" data-tip="<strong>SOURCE: overdraft_daily (Overdraft)</strong>Overdraft daily agg.<br>PK: sale_code + date partition | Charts: 4<br>EST: 30MB × 4 = 120MB">
+        <div class="label">overdraft_daily (OD)</div>
+        <div class="sub">Overdraft · 4 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_db_m" data-tip="<strong>SOURCE: debit_card_monthly</strong>Debit card monthly agg by sale_code.<br>PK: sale_code + date partition | Charts: 5<br>EST: 10MB × 5 = 50MB">
+        <div class="label">debit_card_monthly</div>
+        <div class="sub">Debit Card · 5 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+      <div class="box b-mart" id="ds_db_mgmt" data-tip="<strong>SOURCE: debit_card_management</strong>Debit card mgmt agg.<br>PK: sale_code + date partition | Charts: 1<br>EST: 10MB">
+        <div class="label">debit_card_management</div>
+        <div class="sub">Debit Card · 1 chart</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COL 4: DASHBOARD PAGES -->
+<div class="zone z-dash" style="min-width:130px;">
+  <div class="zone-title">Looker Studio Dashboard</div>
+  <div class="col" style="gap:10px;">
+    <div class="box b-page" id="pg_ov" style="padding:8px 10px;" data-tip="<strong>Overview</strong>Tổng hợp toàn sản phẩm. 18 charts. Sources: KPI, fd_daily, overdraft_daily, lending_daily, birthday_alert, cc_daily, require_attention, account_daily, fd_monthly, crm_sale_code.">
+      <div class="label" style="font-size:12px;">📊 Overview</div>
+      <div class="sub">18 charts · All products</div>
+    </div>
+    <div class="box b-page" id="pg_ln" style="padding:8px 10px;" data-tip="<strong>Loan</strong>Cho vay — daily + monthly detail.<br>15 charts. Sources: lending_daily, lending_monthly.">
+      <div class="label" style="font-size:12px;">🏦 Loan</div>
+      <div class="sub">15 charts · contract_id</div>
+    </div>
+    <div class="box b-page" id="pg_fd" style="padding:8px 10px;" data-tip="<strong>FD / Deposit</strong>Tiết kiệm cố định — daily + monthly.<br>14 charts. Sources: fd_daily, fd_monthly.">
+      <div class="label" style="font-size:12px;">💰 FD / Deposit</div>
+      <div class="sub">14 charts · contract_id</div>
+    </div>
+    <div class="box b-page" id="pg_acc" style="padding:8px 10px;" data-tip="<strong>Account</strong>Tài khoản thanh toán — daily + monthly.<br>10 charts. Sources: account_daily, account_monthly.">
+      <div class="label" style="font-size:12px;">📁 Account</div>
+      <div class="sub">10 charts · account_no</div>
+    </div>
+    <div class="box b-page" id="pg_od" style="padding:8px 10px;" data-tip="<strong>Overdraft</strong>Thấu chi — daily + monthly detail.<br>11 charts. Sources: overdraft_daily, overdraft_monthly.">
+      <div class="label" style="font-size:12px;">📉 Overdraft</div>
+      <div class="sub">11 charts · account_no</div>
+    </div>
+    <div class="box b-page" id="pg_db" style="padding:8px 10px;" data-tip="<strong>Debit Card</strong>Thẻ ghi nợ — daily + monthly + management.<br>10 charts. Sources: debit_card_daily, debit_card_monthly, debit_card_mgmt.">
+      <div class="label" style="font-size:12px;">💳 Debit Card</div>
+      <div class="sub">10 charts · crd_nmbr</div>
+    </div>
+    <div class="box b-page" id="pg_cc" style="padding:8px 10px;" data-tip="<strong>Credit Card</strong>Thẻ tín dụng — daily + monthly detail.<br>13 charts. Sources: cc_daily, cc_monthly.">
+      <div class="label" style="font-size:12px;">💳 Credit Card</div>
+      <div class="sub">13 charts · card_id</div>
+    </div>
+    <div class="box b-page" id="pg_cu" style="padding:8px 10px;" data-tip="<strong>Customer Info</strong>Thông tin khách hàng — tổng hợp cross-product.<br>4 charts. Sources: Cust_total, Cust_agg.">
+      <div class="label" style="font-size:12px;">👤 Customer Info</div>
+      <div class="sub">4 charts · cust_id</div>
+    </div>
+  </div>
+</div>
+
+<!-- COL 5: BUREAU / SIZE SUMMARY -->
+<div class="zone z-bureau" style="min-width:120px;">
+  <div class="zone-title">Est. Size / Chart</div>
+  <div class="col" style="gap:4px;">
+    <div class="section-label">High cost sources</div>
+    <div class="box b-bureau" id="sz_cust_agg" style="border-left:3px solid #e24b4a;">
+      <div class="label">Cust_agg</div><div class="sub" style="color:#a32d2d;font-weight:500;">1,050 MB</div>
+    </div>
+    <div class="box b-bureau" id="sz_fd_monthly" style="border-left:3px solid #e24b4a;">
+      <div class="label">fd_monthly</div><div class="sub" style="color:#a32d2d;font-weight:500;">650 MB</div>
+    </div>
+    <div class="box b-bureau" id="sz_lending_monthly" style="border-left:3px solid #ef9f27;">
+      <div class="label">lending_monthly</div><div class="sub" style="color:#854f0b;font-weight:500;">300 MB</div>
+    </div>
+    <div class="box b-bureau" id="sz_account_monthly" style="border-left:3px solid #ef9f27;">
+      <div class="label">account_monthly</div><div class="sub" style="color:#854f0b;font-weight:500;">300 MB</div>
+    </div>
+    <div class="box b-bureau" id="sz_require_attention" style="border-left:3px solid #ef9f27;">
+      <div class="label">require_attention</div><div class="sub" style="color:#854f0b;font-weight:500;">152 MB</div>
+    </div>
+    <div class="box b-bureau" id="sz_cc_monthly" style="border-left:3px solid #ef9f27;">
+      <div class="label">cc_monthly</div><div class="sub" style="color:#854f0b;font-weight:500;">176 MB</div>
+    </div>
+    <div class="section-label" style="margin-top:6px;">Tổng ước tính</div>
+    <div class="box b-bureau" style="background:#f0f8e8;border:1px solid #4db86b;">
+      <div class="label" style="color:#0e4a22;">Total MB / refresh</div>
+      <div class="sub" id="total-mb-val" style="color:#0e4a22;font-weight:600;font-size:12px;">≈ 3,985 MB</div>
+    </div>
+    <div class="box b-bureau" style="background:#fff8e8;border:1px solid #d4a500;">
+      <div class="label" style="color:#5a3a00;">BQ cost ~850 users</div>
+      <div class="sub" style="color:#5a3a00;font-size:9.5px;">→ Dùng mart để giảm<br>→ BI Engine reservation</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- canvas -->
+
+<!-- COST ESTIMATION CARD -->
+<div class="cost-card">
+  <div class="cost-title">💰 Dự toán kịch bản chi phí BigQuery (BigQuery Cost Estimator)</div>
+  <div class="cost-grid">
+    <div class="cost-inputs">
+      <div class="input-group">
+        <label>Số users active</label>
+        <input type="number" id="param-users" value="850" oninput="updateCostEstimates()">
+      </div>
+      <div class="input-group">
+        <label>Tỷ giá quy đổi (VND)</label>
+        <input type="number" id="param-rate" value="26000" oninput="updateCostEstimates()">
+      </div>
+      <div class="input-group">
+        <label>GB / USD định mức</label>
+        <input type="number" id="param-quota" value="120" oninput="updateCostEstimates()">
+      </div>
+      <div class="input-group">
+        <label>Số ngày làm việc/tháng</label>
+        <input type="number" id="param-days" value="22" oninput="updateCostEstimates()">
+      </div>
+    </div>
+    <div class="cost-results">
+      <!-- Kịch bản 1 -->
+      <div class="sc-card sc-card-1">
+        <div class="sc-header">
+          <span class="sc-title-label">🔵 Kịch bản 1 (Vào ít)</span>
+          <span style="font-weight: normal;"><input type="number" id="param-freq-0" value="3" style="width: 45px; padding: 2px 4px; font-size: 11px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/user/ngày</span>
+        </div>
+        <div class="sc-row"><span>Dung lượng/tháng:</span><span id="sc-gb-0">-</span></div>
+        <div class="sc-row"><span>Chi phí ngày:</span><span><span id="sc-usd-d-0">-</span> (<span id="sc-vnd-d-0">-</span>)</span></div>
+        <div class="sc-row sc-row-main" style="color:#1e40af;"><span>Chi phí tháng:</span><span><span id="sc-usd-m-0">-</span> (<span id="sc-vnd-m-0">-</span>)</span></div>
+        <div class="sc-row" style="opacity:0.8;"><span>Chi phí năm:</span><span><span id="sc-usd-y-0">-</span> (<span id="sc-vnd-y-0">-</span>)</span></div>
+      </div>
+      
+      <!-- Kịch bản 2 -->
+      <div class="sc-card sc-card-2">
+        <div class="sc-header">
+          <span class="sc-title-label">🟡 Kịch bản 2 (Trung bình)</span>
+          <span style="font-weight: normal;"><input type="number" id="param-freq-1" value="6" style="width: 45px; padding: 2px 4px; font-size: 11px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/user/ngày</span>
+        </div>
+        <div class="sc-row"><span>Dung lượng/tháng:</span><span id="sc-gb-1">-</span></div>
+        <div class="sc-row"><span>Chi phí ngày:</span><span><span id="sc-usd-d-1">-</span> (<span id="sc-vnd-d-1">-</span>)</span></div>
+        <div class="sc-row sc-row-main" style="color:#b45309;"><span>Chi phí tháng:</span><span><span id="sc-usd-m-1">-</span> (<span id="sc-vnd-m-1">-</span>)</span></div>
+        <div class="sc-row" style="opacity:0.8;"><span>Chi phí năm:</span><span><span id="sc-usd-y-1">-</span> (<span id="sc-vnd-y-1">-</span>)</span></div>
+      </div>
+
+      <!-- Kịch bản 3 -->
+      <div class="sc-card sc-card-3">
+        <div class="sc-header">
+          <span class="sc-title-label">🔴 Kịch bản 3 (Vào nhiều)</span>
+          <span style="font-weight: normal;"><input type="number" id="param-freq-2" value="10" style="width: 45px; padding: 2px 4px; font-size: 11px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/user/ngày</span>
+        </div>
+        <div class="sc-row"><span>Dung lượng/tháng:</span><span id="sc-gb-2">-</span></div>
+        <div class="sc-row"><span>Chi phí ngày:</span><span><span id="sc-usd-d-2">-</span> (<span id="sc-vnd-d-2">-</span>)</span></div>
+        <div class="sc-row sc-row-main" style="color:#991b1b;"><span>Chi phí tháng:</span><span><span id="sc-usd-m-2">-</span> (<span id="sc-vnd-m-2">-</span>)</span></div>
+        <div class="sc-row" style="opacity:0.8;"><span>Chi phí năm:</span><span><span id="sc-usd-y-2">-</span> (<span id="sc-vnd-y-2">-</span>)</span></div>
+      </div>
+
+      <!-- LOOKER DASHBOARD COST BAR CHART -->
+      <div class="chart-container">
+        <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em;">📊 Chi phí tháng theo Dashboard Page</div>
+        <div id="dashboard-cost-bars">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- main-layout -->
+</div><!-- wrap -->
+
+<script>
+// ── TOOLTIP ──────────────────────────────────────────────────
+const tip = document.getElementById('tip');
+document.querySelectorAll('[data-tip]').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    tip.innerHTML = el.getAttribute('data-tip');
+    tip.style.display = 'block';
+  });
+  el.addEventListener('mousemove', e => {
+    let x = e.clientX + 14, y = e.clientY + 14;
+    if (x + 270 > window.innerWidth) x = e.clientX - 274;
+    if (y + 120 > window.innerHeight) y = e.clientY - 120;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  });
+  el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+});
+
+// ── TOOLBAR (created purely in JS — never saved into HTML) ────
+const toolbar = document.createElement('div');
+toolbar.style.cssText = 'position:fixed;top:10px;right:10px;z-index:10000;background:#fff;padding:8px 10px;border-radius:10px;border:1px solid #ddd;box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;gap:8px;align-items:center;font-family:system-ui,sans-serif;font-size:12px;';
+
+function mkBtn(label, bg, border) {
+  const b = document.createElement('button');
+  b.textContent = label;
+  b.style.cssText = `padding:5px 12px;cursor:pointer;border:1px solid ${border};border-radius:5px;background:${bg};font-family:inherit;font-size:12px;transition:background .15s;`;
+  return b;
+}
+
+const btnEdit  = mkBtn('✏️ Sửa nội dung', '#f5f5f5', '#ccc');
+const btnArrow = mkBtn('➡️ Nối mũi tên',  '#f5f5f5', '#ccc');
+const btnSave  = mkBtn('💾 Lưu file',      '#d0e8ff', '#4a90d0');
+btnSave.style.color = '#0a3060';
+btnSave.style.fontWeight = '600';
+
+const btnFit = mkBtn('🔍 Vừa màn hình (Off)', '#f5f5f5', '#ccc');
+
+toolbar.appendChild(btnEdit);
+toolbar.appendChild(btnArrow);
+toolbar.appendChild(btnFit);
+toolbar.appendChild(btnSave);
+document.body.appendChild(toolbar);
+
+// ── FIT TO WIDTH LOGIC ───────────────────────────────────────
+let isFitWidth = false; // Tắt tự động resize theo yêu cầu
+function applyFitToWidth() {
+  const wrap = document.querySelector('.wrap');
+  if (!wrap) return;
+  if (isFitWidth) {
+    const windowWidth = window.innerWidth;
+    const wrapWidth = 1970; // Tổng độ rộng của canvas và bảng estimator bên phải
+    const scale = windowWidth / wrapWidth;
+    if (scale < 1) {
+      // Sử dụng CSS zoom để trình duyệt tự động thu phóng giao diện và tính toán layout tự nhiên
+      wrap.style.zoom = scale;
+      wrap.style.transform = 'none';
+      document.body.style.height = 'auto';
+    } else {
+      wrap.style.zoom = 'normal';
+      wrap.style.transform = 'none';
+      document.body.style.height = 'auto';
+    }
+    btnFit.textContent = '🔍 Vừa màn hình (On)';
+    btnFit.style.background = '#e2e8f0';
+  } else {
+    wrap.style.zoom = 'normal';
+    wrap.style.transform = 'none';
+    document.body.style.height = 'auto';
+    btnFit.textContent = '🔍 Vừa màn hình (Off)';
+    btnFit.style.background = '#f5f5f5';
+  }
+  setTimeout(renderArrows, 50);
+}
+
+btnFit.addEventListener('click', () => {
+  isFitWidth = !isFitWidth;
+  applyFitToWidth();
+});
+
+window.addEventListener('resize', applyFitToWidth);
+document.addEventListener('DOMContentLoaded', applyFitToWidth);
+setTimeout(applyFitToWidth, 300);
+
+// ── EDIT MODE ─────────────────────────────────────────────────
+let isEditing = false;
+const EDITABLE_SEL = '.label, .sub, .badge, .zone-title, .section-label';
+
+btnEdit.addEventListener('click', () => {
+  isEditing = !isEditing;
+  document.querySelectorAll(EDITABLE_SEL).forEach(el => {
+    el.contentEditable = isEditing ? 'true' : 'false';
+    el.setAttribute('data-editable', isEditing ? 'true' : 'false');
+  });
+  if (isEditing) {
+    btnEdit.style.background = '#ffe0f0';
+    btnEdit.style.borderColor = '#d070a0';
+    btnEdit.textContent = '✏️ Tắt sửa';
+  } else {
+    btnEdit.style.background = '#f5f5f5';
+    btnEdit.style.borderColor = '#ccc';
+    btnEdit.textContent = '✏️ Sửa nội dung';
+  }
+});
+
+// Double-click box → sửa tooltip
+document.querySelectorAll('.box').forEach(box => {
+  box.addEventListener('dblclick', e => {
+    if (!isEditing) return;
+    e.stopPropagation();
+    const cur = box.getAttribute('data-tip') || '';
+    const next = prompt('Sửa tooltip (dùng <strong> và <br>):', cur);
+    if (next !== null) box.setAttribute('data-tip', next);
+  });
+});
+
+// ── ARROW DRAW & FILTER MODE ──────────────────────────────────
+let isDrawing = false, startBox = null, tempPath = null;
+const NS = 'http://www.w3.org/2000/svg';
+
+const colors = {
+  loan: '#3182ce',
+  cc: '#e53e3e',
+  fd: '#38a169',
+  od: '#d69e2e',
+  account: '#805ad5',
+  debit: '#319795',
+  cust: '#d53f8c',
+  shared: '#718096'
+};
+
+const sourceSizes = {
+  ds_kpi: 20,
+  ds_bday: 14,
+  ds_req: 152,
+  ds_fd_m: 650,
+  ds_ln_m: 300,
+  ds_acc_m: 300,
+  ds_od_m: 70,
+  ds_db_d: 40,
+  ds_cc_d: 50,
+  ds_cc_m: 176,
+  ds_cu_ttl: 10,
+  ds_cu_agg: 1050,
+  ds_ov_fd: 60,
+  ds_ov_od: 30,
+  ds_ov_ln: 10,
+  ds_ov_cc: 10,
+  ds_acc_ov: 20,
+  ds_ln_d: 50,
+  ds_fd_d: 20,
+  ds_acc_d: 100,
+  ds_od_d: 120,
+  ds_db_m: 50,
+  ds_db_mgmt: 10
+};
+
+const sizeBoxMapping = {
+  sz_cust_agg: 'ds_cu_agg',
+  sz_fd_monthly: 'ds_fd_m',
+  sz_lending_monthly: 'ds_ln_m',
+  sz_account_monthly: 'ds_acc_m',
+  sz_require_attention: 'ds_req',
+  sz_cc_monthly: 'ds_cc_m'
+};
+
+const svg = document.createElementNS(NS, 'svg');
+svg.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;overflow:visible;width:100%;height:100%;min-height:800px;';
+svg.innerHTML = `<defs>
+  <marker id="ah-loan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#3182ce"/></marker>
+  <marker id="ah-cc" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#e53e3e"/></marker>
+  <marker id="ah-fd" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#38a169"/></marker>
+  <marker id="ah-od" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d69e2e"/></marker>
+  <marker id="ah-account" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#805ad5"/></marker>
+  <marker id="ah-debit" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#319795"/></marker>
+  <marker id="ah-cust" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d53f8c"/></marker>
+  <marker id="ah-shared" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#718096"/></marker>
+  <marker id="ah-highlight" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#ff007f"/></marker>
+</defs><g id="ap"></g>`;
+const canvas = document.getElementById('canvas');
+canvas.insertBefore(svg, canvas.firstChild);
+
+let conns = [];
+try { conns = JSON.parse(canvas.getAttribute('data-connections') || '[]'); } catch(e) {}
+
+let currentFilter = 'all';
+
+function boxMid(el) {
+  const br = el.getBoundingClientRect();
+  const cr = canvas.getBoundingClientRect();
+  
+  // Calculate scale factor from wrap zoom
+  const wrap = document.querySelector('.wrap');
+  let scale = 1;
+  if (wrap && wrap.style.zoom && wrap.style.zoom !== 'normal') {
+    scale = parseFloat(wrap.style.zoom) || 1;
+  }
+
+  return {
+    rx: (br.right - cr.left) / scale,   ry: (br.top - cr.top + br.height / 2) / scale,
+    lx: (br.left  - cr.left) / scale,   ly: (br.top - cr.top + br.height / 2) / scale,
+  };
+}
+
+function drawCurve(x1, y1, x2, y2, prod = 'shared') {
+  const p = document.createElementNS(NS, 'path');
+  const dx = Math.abs(x2 - x1) * 0.5;
+  p.setAttribute('d', `M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`);
+  const color = colors[prod] || '#718096';
+  p.setAttribute('stroke', color); p.setAttribute('stroke-width', '2');
+  p.setAttribute('fill', 'none'); p.setAttribute('marker-end', `url(#ah-${prod})`);
+  return p;
+}
+
+let selectedBoxId = null;
+
+function renderArrows() {
+  const g = document.getElementById('ap');
+  g.innerHTML = '';
+  
+  // Reset opacity and styles of all boxes
+  document.querySelectorAll('.box').forEach(b => {
+    if (b.closest('.legend')) return;
+    b.style.opacity = '1';
+    b.style.filter = '';
+    b.style.boxShadow = '';
+    b.style.border = '';
+  });
+
+  const activeBoxes = new Set();
+  
+  // Compute upstream/downstream flow if a box is selected
+  let visitedUp = new Set();
+  let visitedDown = new Set();
+  let flowNodes = new Set();
+
+  if (selectedBoxId) {
+    // Traverse downstream
+    const queueDown = [selectedBoxId];
+    while (queueDown.length > 0) {
+      const curr = queueDown.shift();
+      if (!visitedDown.has(curr)) {
+        visitedDown.add(curr);
+        conns.forEach(c => {
+          const prod = c.product || 'shared';
+          if (c.from === curr && (currentFilter === 'all' || prod === currentFilter)) {
+            queueDown.push(c.to);
+          }
+        });
+      }
+    }
+
+    // Traverse upstream
+    const queueUp = [selectedBoxId];
+    while (queueUp.length > 0) {
+      const curr = queueUp.shift();
+      if (!visitedUp.has(curr)) {
+        visitedUp.add(curr);
+        conns.forEach(c => {
+          const prod = c.product || 'shared';
+          if (c.to === curr && (currentFilter === 'all' || prod === currentFilter)) {
+            queueUp.push(c.from);
+          }
+        });
+      }
+    }
+
+    flowNodes = new Set([...visitedUp, ...visitedDown]);
+  }
+
+  conns.forEach((c, i) => {
+    const prod = c.product || 'shared';
+    if (currentFilter !== 'all' && prod !== currentFilter) return;
+
+    const fe = document.getElementById(c.from), te = document.getElementById(c.to);
+    if (!fe || !te) return;
+
+    // Determine if this arrow is part of the flow path
+    let isFlowArrow = true;
+    if (selectedBoxId) {
+      const fromInFlow = flowNodes.has(c.from);
+      const toInFlow = flowNodes.has(c.to);
+      isFlowArrow = fromInFlow && toInFlow && (
+        (visitedDown.has(c.from) && visitedDown.has(c.to)) || 
+        (visitedUp.has(c.from) && visitedUp.has(c.to))
+      );
+    }
+
+    activeBoxes.add(c.from); activeBoxes.add(c.to);
+    const r1 = boxMid(fe), r2 = boxMid(te);
+    const p = drawCurve(r1.rx, r1.ry, r2.lx, r2.ly, prod);
+    p.style.pointerEvents = 'visibleStroke';
+    p.style.cursor = 'pointer';
+    
+    if (selectedBoxId) {
+      p.style.opacity = isFlowArrow ? '1' : '0.04';
+      p.setAttribute('stroke-width', isFlowArrow ? '2.5' : '2');
+    } else {
+      p.style.opacity = '1';
+    }
+
+    p.addEventListener('mouseenter', () => { 
+      p.setAttribute('stroke', '#ff007f'); 
+      p.setAttribute('marker-end', 'url(#ah-highlight)'); 
+      p.setAttribute('stroke-width', '3.5'); 
+      p.style.opacity = '1';
+    });
+    p.addEventListener('mouseleave', () => { 
+      p.setAttribute('stroke', colors[prod] || '#718096'); 
+      p.setAttribute('marker-end', `url(#ah-${prod})`); 
+      p.setAttribute('stroke-width', selectedBoxId && isFlowArrow ? '2.5' : '2'); 
+      if (selectedBoxId && !isFlowArrow) p.style.opacity = '0.04';
+    });
+    p.addEventListener('dblclick', () => { 
+      pushState();
+      conns.splice(i,1); 
+      save(); 
+      renderArrows(); 
+    });
+    g.appendChild(p);
+  });
+
+  // Calculate dynamic Total MB
+  let totalMb = 0;
+  if (selectedBoxId) {
+    Object.keys(sourceSizes).forEach(id => {
+      if (flowNodes.has(id)) totalMb += sourceSizes[id];
+    });
+  } else if (currentFilter !== 'all') {
+    Object.keys(sourceSizes).forEach(id => {
+      if (activeBoxes.has(id)) totalMb += sourceSizes[id];
+    });
+  } else {
+    Object.values(sourceSizes).forEach(sz => totalMb += sz);
+  }
+  
+  const totalMbEl = document.getElementById('total-mb-val');
+  if (totalMbEl) {
+    totalMbEl.textContent = `≈ ${totalMb.toLocaleString()} MB`;
+  }
+
+  // Handle box opacities in normal columns
+  if (selectedBoxId) {
+    document.querySelectorAll('.box').forEach(b => {
+      if (b.closest('.legend')) return;
+      if (b.id.startsWith('sz_')) return; // handled separately below
+      if (flowNodes.has(b.id)) {
+        b.style.opacity = '1';
+        if (b.id === selectedBoxId) {
+          b.style.boxShadow = '0 0 12px rgba(255, 0, 127, 0.8)';
+          b.style.border = '2px solid #ff007f';
+        }
+      } else {
+        b.style.opacity = '0.12';
+      }
+    });
+  } else if (currentFilter !== 'all') {
+    document.querySelectorAll('.box').forEach(b => {
+      if (b.closest('.legend')) return;
+      if (b.id.startsWith('sz_')) return;
+      if (!activeBoxes.has(b.id)) b.style.opacity = '0.15';
+    });
+  }
+
+  // Update COL 5 size boxes opacity
+  document.querySelectorAll('[id^="sz_"]').forEach(szBox => {
+    const targetMartId = sizeBoxMapping[szBox.id];
+    if (selectedBoxId) {
+      if (flowNodes.has(targetMartId)) {
+        szBox.style.opacity = '1';
+      } else {
+        szBox.style.opacity = '0.15';
+      }
+    } else if (currentFilter !== 'all') {
+      if (activeBoxes.has(targetMartId)) {
+        szBox.style.opacity = '1';
+      } else {
+        szBox.style.opacity = '0.15';
+      }
+    } else {
+      szBox.style.opacity = '1';
+    }
+  });
+
+  // Always keep Total MB / refresh (and other non-sz summary boxes in Col 5) highlighted/at full opacity
+  document.querySelectorAll('.zone.z-bureau .box').forEach(b => {
+    if (!b.id.startsWith('sz_')) {
+      b.style.opacity = '1';
+    }
+  });
+
+  // Compute estimated size for each Looker Studio dashboard page dynamically
+  const pageBoxes = ['pg_ov', 'pg_ln', 'pg_fd', 'pg_acc', 'pg_od', 'pg_db', 'pg_cc', 'pg_cu'];
+  pageBoxes.forEach(pageId => {
+    const pageEl = document.getElementById(pageId);
+    if (!pageEl) return;
+    const subEl = pageEl.querySelector('.sub');
+    if (!subEl) return;
+    const origSub = subEl.getAttribute('data-orig-sub') || subEl.textContent;
+    if (!subEl.getAttribute('data-orig-sub')) {
+      subEl.setAttribute('data-orig-sub', origSub);
+    }
+    
+    // Find all upstream nodes from this page
+    const visitedUp = new Set();
+    const queueUp = [pageId];
+    while (queueUp.length > 0) {
+      const curr = queueUp.shift();
+      if (!visitedUp.has(curr)) {
+        visitedUp.add(curr);
+        conns.forEach(c => {
+          if (c.to === curr) {
+            queueUp.push(c.from);
+          }
+        });
+      }
+    }
+    
+    // Sum mart sizes in upstream nodes
+    let pageMb = 0;
+    visitedUp.forEach(nodeId => {
+      if (sourceSizes[nodeId]) {
+        pageMb += sourceSizes[nodeId];
+      }
+    });
+    
+    subEl.textContent = `${origSub} · Est: ${pageMb.toLocaleString()} MB`;
+  });
+
+  updateCostEstimates();
+}
+
+function save() { canvas.setAttribute('data-connections', JSON.stringify(conns)); }
+renderArrows();
+window.addEventListener('resize', renderArrows);
+
+function updateCostEstimates() {
+  const totalMbEl = document.getElementById('total-mb-val');
+  if (!totalMbEl) return;
+  const totalMbText = totalMbEl.textContent;
+  const match = totalMbText.match(/≈\s*([\d,]+)/);
+  if (!match) return;
+  const activeMb = parseFloat(match[1].replace(/,/g, ''));
+  
+  const activeUsers = parseFloat(document.getElementById('param-users').value) || 850;
+  const rateVnd = parseFloat(document.getElementById('param-rate').value) || 26000;
+  const quotaGb = parseFloat(document.getElementById('param-quota').value) || 120;
+  const workDays = parseFloat(document.getElementById('param-days').value) || 22;
+
+  const scenarios = [
+    { name: 'Kịch bản 1', elementId: 'param-freq-0' },
+    { name: 'Kịch bản 2', elementId: 'param-freq-1' },
+    { name: 'Kịch bản 3', elementId: 'param-freq-2' }
+  ];
+
+  scenarios.forEach((sc, idx) => {
+    const visits = parseFloat(document.getElementById(sc.elementId).value) || 0;
+    // GB/month = MB * 10^-3 * visits/day * users * days
+    const totalGbMonth = (activeMb / 1000) * visits * activeUsers * workDays;
+    
+    // Cost calculation
+    const costUsdMonth = totalGbMonth / quotaGb;
+    const costVndMonth = costUsdMonth * rateVnd;
+    
+    // Daily calculation
+    const costUsdDaily = workDays > 0 ? (costUsdMonth / workDays) : 0;
+    const costVndDaily = workDays > 0 ? (costVndMonth / workDays) : 0;
+    
+    const costUsdYear = costUsdMonth * 12;
+    const costVndYear = costVndMonth * 12;
+
+    document.getElementById(`sc-gb-${idx}`).textContent = `${Math.round(totalGbMonth).toLocaleString()} GB`;
+    document.getElementById(`sc-usd-d-${idx}`).textContent = `$${Math.round(costUsdDaily).toLocaleString()}`;
+    document.getElementById(`sc-vnd-d-${idx}`).textContent = `${Math.round(costVndDaily).toLocaleString()}đ`;
+    
+    const usdEl = document.getElementById(`sc-usd-m-${idx}`);
+    const vndEl = document.getElementById(`sc-vnd-m-${idx}`);
+    
+    usdEl.textContent = `$${Math.round(costUsdMonth).toLocaleString()}`;
+    vndEl.textContent = `${Math.round(costVndMonth).toLocaleString()}đ`;
+
+    // Dynamic Styling based on monthly cost magnitude
+    if (costVndMonth < 5000000) { // < 5 Million VND (Low)
+      usdEl.style.fontSize = '11px'; usdEl.style.fontWeight = '600'; usdEl.style.color = '#1e3a8a'; // Blue
+      vndEl.style.fontSize = '11px'; vndEl.style.fontWeight = '600'; vndEl.style.color = '#1e3a8a';
+    } else if (costVndMonth < 25000000) { // 5M - 25M VND (Medium)
+      usdEl.style.fontSize = '13px'; usdEl.style.fontWeight = '700'; usdEl.style.color = '#d97706'; // Amber
+      vndEl.style.fontSize = '13px'; vndEl.style.fontWeight = '700'; vndEl.style.color = '#d97706';
+    } else { // > 25 Million VND (High cost!)
+      usdEl.style.fontSize = '15px'; usdEl.style.fontWeight = '900'; usdEl.style.color = '#dc2626'; // Red
+      vndEl.style.fontSize = '15px'; vndEl.style.fontWeight = '900'; vndEl.style.color = '#dc2626';
+    }
+
+    document.getElementById(`sc-usd-y-${idx}`).textContent = `$${Math.round(costUsdYear).toLocaleString()}`;
+    document.getElementById(`sc-vnd-y-${idx}`).textContent = `${Math.round(costVndYear).toLocaleString()}đ`;
+  });
+
+  // RENDER DYNAMIC LOOKER DASHBOARD COST BAR CHART (Using Scenario 2 as reference frequency)
+  const chartWrapper = document.getElementById('dashboard-cost-bars');
+  if (chartWrapper) {
+    chartWrapper.innerHTML = '';
+    const pageBoxes = ['pg_ov', 'pg_ln', 'pg_fd', 'pg_acc', 'pg_od', 'pg_db', 'pg_cc', 'pg_cu'];
+    const pageNames = {
+      pg_ov: '📊 Overview',
+      pg_ln: '🏦 Loan',
+      pg_fd: '💰 FD / Deposit',
+      pg_acc: '📁 Account',
+      pg_od: '📉 Overdraft',
+      pg_db: '💳 Debit Card',
+      pg_cc: '💳 Credit Card',
+      pg_cu: '👤 Customer Info'
+    };
+    
+    // Calculate cost for each page based on Scenario 2
+    const visitsRef = parseFloat(document.getElementById('param-freq-1').value) || 6;
+    const pageCosts = [];
+    let maxCost = 1; // avoid divide by zero
+    
+    pageBoxes.forEach(pageId => {
+      const pageEl = document.getElementById(pageId);
+      if (!pageEl) return;
+      
+      // Calculate dynamic MB size from upstream nodes
+      const visitedUp = new Set();
+      const queueUp = [pageId];
+      while (queueUp.length > 0) {
+        const curr = queueUp.shift();
+        if (!visitedUp.has(curr)) {
+          visitedUp.add(curr);
+          conns.forEach(c => {
+            if (c.to === curr) queueUp.push(c.from);
+          });
+        }
+      }
+      
+      let pageMb = 0;
+      visitedUp.forEach(nodeId => {
+        if (sourceSizes[nodeId]) pageMb += sourceSizes[nodeId];
+      });
+      
+      const pageGbMonth = (pageMb / 1000) * visitsRef * activeUsers * workDays;
+      const pageCostUsd = pageGbMonth / quotaGb;
+      const pageCostVnd = pageCostUsd * rateVnd;
+      
+      pageCosts.push({
+        id: pageId,
+        name: pageNames[pageId] || pageId,
+        costUsd: pageCostUsd,
+        costVnd: pageCostVnd
+      });
+      
+      if (pageCostVnd > maxCost) {
+        maxCost = pageCostVnd;
+      }
+    });
+
+    // Render bars
+    pageCosts.forEach(item => {
+      const pct = (item.costVnd / maxCost) * 100;
+      const row = document.createElement('div');
+      row.className = 'chart-row';
+      row.innerHTML = `
+        <div class="chart-label" title="${item.name}">${item.name}</div>
+        <div class="chart-bar-wrap">
+          <div class="chart-bar" style="width: ${pct}%; background: #3b82f6;"></div>
+        </div>
+        <div class="chart-val">${Math.round(item.costVnd).toLocaleString()}đ</div>
+      `;
+      chartWrapper.appendChild(row);
+    });
+  }
+}
+
+// ── UNDO CONNS STATE (CTRL+Z) ─────────────────────────────────
+const undoStack = [];
+function pushState() {
+  if (undoStack.length > 50) undoStack.shift();
+  undoStack.push(JSON.stringify(conns));
+}
+function undo() {
+  if (undoStack.length === 0) return;
+  const prevState = undoStack.pop();
+  try {
+    conns = JSON.parse(prevState);
+    save();
+    renderArrows();
+  } catch(err) {
+    console.error(err);
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.contentEditable === 'true')) {
+      return;
+    }
+    e.preventDefault();
+    undo();
+  }
+});
+
+function setFilter(prod) {
+  currentFilter = prod;
+  selectedBoxId = null; // Clear box cross-filtering when product changes
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-product') === prod));
+  renderArrows();
+}
+
+// Bind product filter click events
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setFilter(btn.getAttribute('data-product'));
+  });
+});
+
+btnArrow.addEventListener('click', () => {
+  isDrawing = !isDrawing;
+  btnArrow.style.background = isDrawing ? '#e0f0ff' : '#f5f5f5';
+  btnArrow.style.borderColor = isDrawing ? '#4a90d0' : '#ccc';
+  btnArrow.textContent = isDrawing ? '➡️ Tắt nối' : '➡️ Nối mũi tên';
+});
+
+document.querySelectorAll('.box').forEach(box => {
+  box.addEventListener('click', e => {
+    if (isDrawing || isEditing) return;
+    if (box.closest('.legend')) return;
+    if (box.id.startsWith('sz_')) return; // Ignore clicking on summary boxes
+    selectedBoxId = (selectedBoxId === box.id) ? null : box.id;
+    renderArrows();
+  });
+
+  box.addEventListener('mousedown', e => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    startBox = box;
+    const r = boxMid(box);
+    const prod = currentFilter === 'all' ? 'shared' : currentFilter;
+    tempPath = drawCurve(r.rx, r.ry, r.rx, r.ry, prod);
+    tempPath.setAttribute('stroke', '#aaa'); tempPath.setAttribute('stroke-dasharray', '5');
+    document.getElementById('ap').appendChild(tempPath);
+  });
+  box.addEventListener('mouseup', e => {
+    if (!isDrawing || !startBox || startBox === box) return;
+    const prod = currentFilter === 'all' ? 'shared' : currentFilter;
+    const pair = { from: startBox.id, to: box.id, product: prod };
+    if (!conns.find(c => c.from === pair.from && c.to === pair.to)) {
+      pushState();
+      conns.push(pair); 
+      save(); 
+      renderArrows(); 
+    }
+    if (tempPath) { tempPath.remove(); tempPath = null; }
+    startBox = null;
+  });
+});
+
+document.addEventListener('mousemove', e => {
+  if (!isDrawing || !startBox || !tempPath) return;
+  const cr = canvas.getBoundingClientRect();
+  const r  = boxMid(startBox);
+
+  // Get active scale factor from wrap zoom
+  const wrap = document.querySelector('.wrap');
+  let scale = 1;
+  if (wrap && wrap.style.zoom && wrap.style.zoom !== 'normal') {
+    scale = parseFloat(wrap.style.zoom) || 1;
+  }
+
+  const x2 = (e.clientX - cr.left) / scale, y2 = (e.clientY - cr.top) / scale;
+  const dx = Math.abs(x2 - r.rx) * 0.5;
+  const prod = currentFilter === 'all' ? 'shared' : currentFilter;
+  tempPath.setAttribute('d', `M${r.rx},${r.ry} C${r.rx+dx},${r.ry} ${x2-dx},${y2} ${x2},${y2}`);
+});
+
+document.addEventListener('mouseup', () => {
+  if (tempPath) { tempPath.remove(); tempPath = null; }
+  startBox = null;
+});
+
+// ── SAVE FILE ─────────────────────────────────────────────────
+btnSave.addEventListener('click', async () => {
+  if (isEditing) btnEdit.click();
+  if (isDrawing) btnArrow.click();
+  const prevFilter = currentFilter;
+  const prevSelected = selectedBoxId;
+  selectedBoxId = null;
+  setFilter('all');
+  
+  toolbar.remove();
+  const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  document.body.appendChild(toolbar);
+  
+  selectedBoxId = prevSelected;
+  setFilter(prevFilter);
+  
+  try {
+    if (window.showSaveFilePicker) {
+      const fh = await window.showSaveFilePicker({
+        suggestedName: 'sale_dashboard_data_flow 1.html',
+        types: [{ description: 'HTML File', accept: { 'text/html': ['.html'] } }],
+      });
+      const w = await fh.createWritable();
+      await w.write(html);
+      await w.close();
+      btnSave.textContent = '✅ Đã lưu!';
+      setTimeout(() => { btnSave.textContent = '💾 Lưu file'; }, 2000);
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      a.download = 'sale_dashboard_data_flow 1.html';
+      a.click();
+    }
+  } catch(err) {
+    if (err.name !== 'AbortError') alert('Lỗi: ' + err.message);
+  }
+});
+</script>
+</body></html>
