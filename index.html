@@ -455,15 +455,15 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
         <div class="sub">Credit Card · 8 charts</div>
         <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 176MB · card_id + date</span>
       </div>
-      <div class="box b-mart" id="ds_cu_ttl" data-tip="<strong>SOURCE: Cust_total</strong>Customer total cross-product balance per cstmr_idntfr.<br>PK: cstmr_idntfr + date partition | Charts: 1<br>EST: 10MB">
+      <div class="box b-mart" id="ds_cu_ttl" data-tip="<strong>SOURCE: Cust_total</strong>Customer total cross-product balance per cstmr_idntfr.<br>PK: cstmr_idntfr + date partition | Charts: 4 (1 chart full table: 300MB, 3 pie charts: 40MB/chart)<br>EST: 420MB">
         <div class="label">Cust_total</div>
-        <div class="sub">Customer Info · 1 chart</div>
-        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">cstmr_idntfr + date</span>
+        <div class="sub">Customer Info · 4 charts</div>
+        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 420MB · cstmr_idntfr + date</span>
       </div>
-      <div class="box b-mart" id="ds_cu_agg" data-tip="<strong>SOURCE: Cust_agg</strong>Customer agg monthly by sale_code + rank.<br>PK: report_month + date partition | Charts: 3<br>EST: 350MB × 3 = 1050MB 🔴">
+      <div class="box b-mart" id="ds_cu_agg" data-tip="<strong>SOURCE: Cust_agg</strong>Customer agg monthly by sale_code + rank.<br>PK: report_month + date partition | Charts: 5<br>EST: 10MB × 5 = 50MB">
         <div class="label">Cust_agg</div>
-        <div class="sub">Customer Info · 3 charts</div>
-        <span class="badge" style="background:#f8c0c0;color:#6b0000;">🔴 1050MB · report_month</span>
+        <div class="sub">Customer Info · 5 charts</div>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">50MB · report_month</span>
       </div>
     </div>
 
@@ -574,8 +574,8 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
   <div class="zone-title">Est. Size / Chart</div>
   <div class="col" style="gap:4px;">
     <div class="section-label">High cost sources</div>
-    <div class="box b-bureau" id="sz_cust_agg" style="border-left:3px solid #e24b4a;">
-      <div class="label">Cust_agg</div><div class="sub" style="color:#a32d2d;font-weight:500;">1,050 MB</div>
+    <div class="box b-bureau" id="sz_cust_total" style="border-left:3px solid #ef9f27;">
+      <div class="label">Cust_total</div><div class="sub" style="color:#854f0b;font-weight:500;">420 MB</div>
     </div>
     <div class="box b-bureau" id="sz_fd_monthly" style="border-left:3px solid #e24b4a;">
       <div class="label">fd_monthly</div><div class="sub" style="color:#a32d2d;font-weight:500;">650 MB</div>
@@ -828,8 +828,8 @@ const sourceSizes = {
   ds_db_d: 40,
   ds_cc_d: 50,
   ds_cc_m: 176,
-  ds_cu_ttl: 10,
-  ds_cu_agg: 1050,
+  ds_cu_ttl: 420,
+  ds_cu_agg: 50,
   ds_ov_fd: 60,
   ds_ov_od: 30,
   ds_ov_ln: 10,
@@ -844,7 +844,7 @@ const sourceSizes = {
 };
 
 const sizeBoxMapping = {
-  sz_cust_agg: 'ds_cu_agg',
+  sz_cust_total: 'ds_cu_ttl',
   sz_fd_monthly: 'ds_fd_m',
   sz_lending_monthly: 'ds_ln_m',
   sz_account_monthly: 'ds_acc_m',
