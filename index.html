@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html><head><style>
+<html><head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+<style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
+body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hidden;}
 .wrap{padding:24px 20px;min-width:1450px;transform-origin: top left;}
 .canvas{display:flex;gap:70px;align-items:flex-start;position:relative;}
 
@@ -610,7 +614,7 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
 <div class="cost-card">
   <div class="cost-title">💰 Dự toán kịch bản chi phí BigQuery (BigQuery Cost Estimator)</div>
   <div class="cost-grid">
-    <div class="cost-inputs" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+    <div class="cost-inputs" style="grid-template-columns: 1fr 1fr; gap: 8px;">
       <div class="input-group">
         <label>Số Sales active</label>
         <input type="number" id="param-users-sales" value="800" oninput="updateCostEstimates()">
@@ -619,7 +623,7 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
         <label>Số Manager active</label>
         <input type="number" id="param-users-mgr" value="50" oninput="updateCostEstimates()">
       </div>
-      <div class="input-group">
+      <div class="input-group" style="grid-column: span 2;">
         <label>Tổng Users (Tự động)</label>
         <input type="number" id="param-users-total" value="850" readonly style="background: #f1f5f9; cursor: not-allowed;">
       </div>
@@ -631,11 +635,11 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
         <label>GB / USD định mức</label>
         <input type="number" id="param-quota" value="120" oninput="updateCostEstimates()">
       </div>
-      <div class="input-group">
+      <div class="input-group" style="grid-column: span 2;">
         <label>Số ngày làm việc/tháng</label>
         <input type="number" id="param-days" value="22" oninput="updateCostEstimates()">
       </div>
-      <div class="input-group" style="grid-column: span 3; border-top: 1px solid #edf2f7; padding-top: 8px; margin-top: 4px;">
+      <div class="input-group" style="grid-column: span 2; border-top: 1px solid #edf2f7; padding-top: 8px; margin-top: 4px;">
         <label style="color: #0f766e; font-weight: 700;">Dự báo tăng trưởng (%)</label>
         <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
           <input type="number" id="param-growth" value="10" style="width: 70px;" oninput="updateCostEstimates()">
