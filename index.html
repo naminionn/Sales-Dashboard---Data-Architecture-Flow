@@ -79,6 +79,39 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
   color: #334155;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
 }
+/* Link card styles */
+.link-card {
+  margin-top: 15px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: none;
+}
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #3182ce;
+  color: #fff;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-top: 6px;
+  margin-right: 6px;
+  transition: background 0.15s;
+}
+.link-btn:hover {
+  background: #2b6cb0;
+}
+.link-btn.btn-branch {
+  background: #38a169;
+}
+.link-btn.btn-branch:hover {
+  background: #2f855a;
+}
 .cost-title {
   font-size: 13px;
   font-weight: 600;
@@ -632,6 +665,15 @@ body{font-family:var(--font-sans,system-ui);overflow-x:hidden;}
         <div class="sc-row" style="opacity:0.8;"><span>Chi phí năm:</span><span><span id="sc-usd-y-2">-</span> (<span id="sc-vnd-y-2">-</span>)</span></div>
       </div>
 
+      <!-- EMBED LINKS DETAILS CARD -->
+      <div id="embed-links-card" class="link-card">
+        <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.04em; border-bottom:1px solid #edf2f7; padding-bottom:5px;">🔗 Link Embed Dashboard</div>
+        <div id="embed-links-title" style="font-size:11.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Overview</div>
+        <div id="embed-links-btns">
+          <!-- Dynamically inserted buttons -->
+        </div>
+      </div>
+
       <!-- LOOKER DASHBOARD COST BAR CHART -->
       <div class="chart-container">
         <div style="font-size:11px; font-weight:700; color:#475569; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em;">📊 Chi phí tháng theo Dashboard Page</div>
@@ -1072,6 +1114,85 @@ function renderArrows() {
     
     subEl.textContent = `${origSub} · Est: ${pageMb.toLocaleString()} MB`;
   });
+
+  // RENDER DYNAMIC EMBED LINKS CARD ON CROSS FILTER SELECTION
+  const linksCard = document.getElementById('embed-links-card');
+  const linksTitle = document.getElementById('embed-links-title');
+  const linksBtns = document.getElementById('embed-links-btns');
+  
+  const embedData = {
+    pg_ov: {
+      title: '📊 Overview Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/91fb9083-caa5-4622-acfc-9f60c905c4e3/page/p_o52jx6e31d', isBranch: false }
+      ]
+    },
+    pg_ln: {
+      title: '🏦 Loan Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/5a8292eb-3688-430f-8a7d-6dddcafb032b/page/p_omg2lojt2d', isBranch: false },
+        { label: 'Branch (Manager)', url: 'https://datastudio.google.com/u/0/reporting/bd404b35-90b8-42a4-91c1-43fa21e50b94/page/p_omg2lojt2d', isBranch: true }
+      ]
+    },
+    pg_fd: {
+      title: '💰 FD / Deposit Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/425b2933-b668-41bd-b2d3-c3bbdceb8917/page/p_omg2lojt2d', isBranch: false },
+        { label: 'Branch (Manager)', url: 'https://datastudio.google.com/u/0/reporting/2d2dc092-8729-49c8-a6b2-ddf2d48153e0/page/p_omg2lojt2d/edit', isBranch: true }
+      ]
+    },
+    pg_acc: {
+      title: '📁 Account Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/c3c9826e-7f05-4134-9618-a4006c4ac7f7/page/p_o52jx6e31d', isBranch: false },
+        { label: 'Branch (Manager)', url: 'https://datastudio.google.com/u/0/reporting/46fb21d0-a7e8-4753-8603-d68d44fe0b13/page/p_o52jx6e31d/edit', isBranch: true }
+      ]
+    },
+    pg_od: {
+      title: '📉 Overdraft Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/3f4cd322-915f-4706-9083-942f91a20609/page/p_omg2lojt2d', isBranch: false },
+        { label: 'Branch (Manager)', url: 'https://datastudio.google.com/u/0/reporting/280dc274-8116-49c0-a1ec-1a48cc3116bb/page/p_omg2lojt2d', isBranch: true }
+      ]
+    },
+    pg_db: {
+      title: '💳 Debit Card Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/fb59a792-6a94-4aec-966b-22b4f5d36636/page/p_omg2lojt2d', isBranch: false },
+        { label: 'Branch (Manager)', url: 'https://datastudio.google.com/u/0/reporting/ff8fde22-a60d-4d5f-aeb7-2171a1e2894c/page/p_omg2lojt2d', isBranch: true }
+      ]
+    },
+    pg_cc: {
+      title: '💳 Credit Card Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/e67d0bb8-c4d5-4762-8f5c-a5e643e14eb3/page/p_omg2lojt2d', isBranch: false },
+        { label: 'Branch (Manager)', url: 'https://datastudio.google.com/u/0/reporting/798cff53-4484-47a1-ac54-14d37edc87ea/page/p_omg2lojt2d', isBranch: true }
+      ]
+    },
+    pg_cu: {
+      title: '👤 Customer Info Dashboard',
+      links: [
+        { label: 'My Sales (Staff)', url: 'https://datastudio.google.com/u/0/reporting/07fa2b74-a8f9-4e0a-aabf-40c22fce90cb/page/p_omg2lojt2d', isBranch: false }
+      ]
+    }
+  };
+
+  if (selectedBoxId && embedData[selectedBoxId]) {
+    const data = embedData[selectedBoxId];
+    linksTitle.textContent = data.title;
+    linksBtns.innerHTML = '';
+    data.links.forEach(link => {
+      const a = document.createElement('a');
+      a.href = link.url;
+      a.target = '_blank';
+      a.className = 'link-btn' + (link.isBranch ? ' btn-branch' : '');
+      a.innerHTML = (link.isBranch ? '🏢 ' : '👤 ') + link.label;
+      linksBtns.appendChild(a);
+    });
+    linksCard.style.display = 'block';
+  } else {
+    linksCard.style.display = 'none';
+  }
 
   updateCostEstimates();
 }
