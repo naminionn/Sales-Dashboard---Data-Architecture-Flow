@@ -424,10 +424,10 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
         <div class="sub">Overview · 4 charts</div>
         <span class="badge" style="background:#9fe8b0;color:#0e4a22;">contract_id + date</span>
       </div>
-      <div class="box b-mart" id="ds_fd_m" data-tip="<strong>SOURCE: fd_monthly (Overview + FD)</strong>FD monthly detail per contract — dùng chung Overview và FD page.<br>PK: systm_dt + account_number | Charts: 1+12=13<br>EST: 50MB × 13 = 650MB 🔥">
+      <div class="box b-mart" id="ds_fd_m" data-tip="<strong>SOURCE: fd_monthly (Overview + FD)</strong>FD monthly detail per contract — dùng chung Overview và FD page.<br>PK: systm_dt + account_number | Charts: 7 (25-40MB/chart)<br>EST: 35MB × 7 = 245MB">
         <div class="label">fd_monthly</div>
-        <div class="sub">Overview + FD · 13 charts</div>
-        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 650MB · contract_id + date</span>
+        <div class="sub">Overview + FD · 7 charts</div>
+        <span class="badge" style="background:#f8c8a0;color:#6b3000;">⚠ 245MB · contract_id + date</span>
       </div>
       <div class="box b-mart" id="ds_ln_m" data-tip="<strong>SOURCE: lending_monthly</strong>Lending monthly detail per contract — table drilldown.<br>PK: contract_id + date partition | Charts: 10<br>EST: 30MB × 10 = 300MB 🔥">
         <div class="label">lending_monthly</div>
@@ -581,8 +581,8 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
     <div class="box b-bureau" id="sz_cust_total" style="border-left:3px solid #ef9f27;">
       <div class="label">Cust_total</div><div class="sub" style="color:#854f0b;font-weight:500;">420 MB</div>
     </div>
-    <div class="box b-bureau" id="sz_fd_monthly" style="border-left:3px solid #e24b4a;">
-      <div class="label">fd_monthly</div><div class="sub" style="color:#a32d2d;font-weight:500;">650 MB</div>
+    <div class="box b-bureau" id="sz_fd_monthly" style="border-left:3px solid #ef9f27;">
+      <div class="label">fd_monthly</div><div class="sub" style="color:#854f0b;font-weight:500;">245 MB</div>
     </div>
     <div class="box b-bureau" id="sz_lending_monthly" style="border-left:3px solid #ef9f27;">
       <div class="label">lending_monthly</div><div class="sub" style="color:#854f0b;font-weight:500;">300 MB</div>
@@ -861,7 +861,7 @@ const sourceSizes = {
   ds_kpi: 20,
   ds_bday: 14,
   ds_req: 152,
-  ds_fd_m: 650,
+  ds_fd_m: 245,
   ds_ln_m: 300,
   ds_acc_m: 300,
   ds_od_m: 70,
