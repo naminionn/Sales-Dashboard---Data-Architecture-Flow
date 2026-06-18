@@ -643,12 +643,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
         <label style="color: #0f766e; font-weight: 700;">Dự báo tăng trưởng (%)</label>
         <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
           <input type="number" id="param-growth" value="10" style="width: 70px;" oninput="updateCostEstimates()">
-          <span style="font-size: 11px; color: #475569;">% tăng trưởng</span>
-          <select id="param-growth-period" onchange="updateCostEstimates()" style="padding: 5px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px; font-weight: 500; color: #334155; outline: none;">
-            <option value="month">Tháng</option>
-            <option value="quarter">Quý</option>
-            <option value="year">Năm</option>
-          </select>
+          <span style="font-size: 11px; color: #475569;">% tăng trưởng / năm</span>
         </div>
       </div>
     </div>
@@ -659,7 +654,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
           <span class="sc-title-label">🔵 Kịch bản 1 (Vào ít)</span>
           <div style="font-weight: normal; font-size: 10.5px; display: flex; gap: 8px; flex-wrap: wrap;">
             <span>Sales: <input type="number" id="param-freq-sales-0" value="2" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
-            <span>Mgr: <input type="number" id="param-freq-mgr-0" value="6" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
+            <span>Manager: <input type="number" id="param-freq-mgr-0" value="6" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
           </div>
         </div>
         <div class="sc-row"><span>Dung lượng/tháng:</span><span id="sc-gb-0">-</span></div>
@@ -667,7 +662,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
         <div class="sc-row sc-row-main" style="color:#1e40af;"><span>Chi phí tháng:</span><span><span id="sc-usd-m-0">-</span> (<span id="sc-vnd-m-0">-</span>)</span></div>
         <div class="sc-row" style="opacity:0.8; margin-bottom: 4px;"><span>Chi phí năm:</span><span><span id="sc-usd-y-0">-</span> (<span id="sc-vnd-y-0">-</span>)</span></div>
         <div class="sc-row" style="border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 4px; font-size: 10px; color: #0f766e;">
-          <span>Dự báo tăng trưởng (<span class="growth-lbl">10% / Tháng</span>):</span>
+          <span>Dự báo tăng trưởng (<span class="growth-lbl">10% / Năm</span>):</span>
           <span style="font-weight: 600;" id="sc-forecast-0">-</span>
         </div>
       </div>
@@ -678,7 +673,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
           <span class="sc-title-label">🟡 Kịch bản 2 (Trung bình)</span>
           <div style="font-weight: normal; font-size: 10.5px; display: flex; gap: 8px; flex-wrap: wrap;">
             <span>Sales: <input type="number" id="param-freq-sales-1" value="5" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
-            <span>Mgr: <input type="number" id="param-freq-mgr-1" value="12" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
+            <span>Manager: <input type="number" id="param-freq-mgr-1" value="12" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
           </div>
         </div>
         <div class="sc-row"><span>Dung lượng/tháng:</span><span id="sc-gb-1">-</span></div>
@@ -686,7 +681,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
         <div class="sc-row sc-row-main" style="color:#b45309;"><span>Chi phí tháng:</span><span><span id="sc-usd-m-1">-</span> (<span id="sc-vnd-m-1">-</span>)</span></div>
         <div class="sc-row" style="opacity:0.8; margin-bottom: 4px;"><span>Chi phí năm:</span><span><span id="sc-usd-y-1">-</span> (<span id="sc-vnd-y-1">-</span>)</span></div>
         <div class="sc-row" style="border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 4px; font-size: 10px; color: #0f766e;">
-          <span>Dự báo tăng trưởng (<span class="growth-lbl">10% / Tháng</span>):</span>
+          <span>Dự báo tăng trưởng (<span class="growth-lbl">10% / Năm</span>):</span>
           <span style="font-weight: 600;" id="sc-forecast-1">-</span>
         </div>
       </div>
@@ -697,7 +692,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
           <span class="sc-title-label">🔴 Kịch bản 3 (Vào nhiều)</span>
           <div style="font-weight: normal; font-size: 10.5px; display: flex; gap: 8px; flex-wrap: wrap;">
             <span>Sales: <input type="number" id="param-freq-sales-2" value="8" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
-            <span>Mgr: <input type="number" id="param-freq-mgr-2" value="20" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
+            <span>Manager: <input type="number" id="param-freq-mgr-2" value="20" style="width: 38px; padding: 1px 3px; font-size: 10.5px; text-align: right; border: 1px solid #cbd5e1; border-radius: 4px;" oninput="updateCostEstimates()"> lần/ngày</span>
           </div>
         </div>
         <div class="sc-row"><span>Dung lượng/tháng:</span><span id="sc-gb-2">-</span></div>
@@ -705,7 +700,7 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
         <div class="sc-row sc-row-main" style="color:#991b1b;"><span>Chi phí tháng:</span><span><span id="sc-usd-m-2">-</span> (<span id="sc-vnd-m-2">-</span>)</span></div>
         <div class="sc-row" style="opacity:0.8; margin-bottom: 4px;"><span>Chi phí năm:</span><span><span id="sc-usd-y-2">-</span> (<span id="sc-vnd-y-2">-</span>)</span></div>
         <div class="sc-row" style="border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 4px; font-size: 10px; color: #0f766e;">
-          <span>Dự báo tăng trưởng (<span class="growth-lbl">10% / Tháng</span>):</span>
+          <span>Dự báo tăng trưởng (<span class="growth-lbl">10% / Năm</span>):</span>
           <span style="font-weight: 600;" id="sc-forecast-2">-</span>
         </div>
       </div>
@@ -1263,10 +1258,8 @@ function updateCostEstimates() {
   const quotaGb = parseFloat(document.getElementById('param-quota').value) || 120;
   const workDays = parseFloat(document.getElementById('param-days').value) || 22;
   const growthPercent = parseFloat(document.getElementById('param-growth').value) || 0;
-  const growthPeriod = document.getElementById('param-growth-period').value; // 'month', 'quarter', 'year'
-  
-  const periodLabel = growthPeriod === 'month' ? 'Tháng' : growthPeriod === 'quarter' ? 'Quý' : 'Năm';
-  const periodMonths = growthPeriod === 'month' ? 1 : growthPeriod === 'quarter' ? 3 : 12;
+  const periodLabel = 'Năm';
+  const periodMonths = 12;
 
   // Update growth label in all cards
   document.querySelectorAll('.growth-lbl').forEach(el => {
