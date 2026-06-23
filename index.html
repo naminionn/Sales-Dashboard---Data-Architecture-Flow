@@ -529,10 +529,10 @@ body{font-family:'Quicksand',var(--font-sans,system-ui),sans-serif;overflow-x:hi
         <div class="sub">Debit Card · 1 chart</div>
         <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
       </div>
-      <div class="box b-mart" id="ds_sm_npl_agg" data-tip="<strong>SOURCE: SM & NPL daily AGG</strong>SM & NPL daily agg by sale_code.<br>PK: sale_code + date partition | Charts: 2 (31MB/chart)<br>EST: 31MB × 2 = 62MB">
+      <div class="box b-mart" id="ds_sm_npl_agg" data-tip="<strong>SOURCE: SM & NPL daily AGG</strong>SM & NPL daily agg by sale_code.<br>PK: sale_code + date partition | Charts: 2 (5MB/chart)<br>EST: 5MB × 2 = 10MB">
         <div class="label">SM & NPL daily AGG</div>
         <div class="sub">Overview · 2 charts</div>
-        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">sale_code + date</span>
+        <span class="badge" style="background:#9fe8b0;color:#0e4a22;">10MB · sale_code + date</span>
       </div>
     </div>
 
@@ -886,7 +886,7 @@ const sourceSizes = {
   ds_od_d: 120,
   ds_db_m: 50,
   ds_db_mgmt: 10,
-  ds_sm_npl_agg: 62
+  ds_sm_npl_agg: 10
 };
 
 const sizeBoxMapping = {
@@ -1142,11 +1142,14 @@ function renderArrows() {
       const curr = queueUp.shift();
       if (!visitedUp.has(curr)) {
         visitedUp.add(curr);
-        conns.forEach(c => {
-          if (c.to === curr) {
-            queueUp.push(c.from);
-          }
-        });
+        // Do not traverse upstream further if it's already a Mart source (starting with ds_)
+        if (curr === pageId || !curr.startsWith('ds_')) {
+          conns.forEach(c => {
+            if (c.to === curr) {
+              queueUp.push(c.from);
+            }
+          });
+        }
       }
     }
     
@@ -1375,9 +1378,12 @@ function updateCostEstimates() {
         const curr = queueUp.shift();
         if (!visitedUp.has(curr)) {
           visitedUp.add(curr);
-          conns.forEach(c => {
-            if (c.to === curr) queueUp.push(c.from);
-          });
+          // Do not traverse upstream further if it's already a Mart source (starting with ds_)
+          if (curr === pageId || !curr.startsWith('ds_')) {
+            conns.forEach(c => {
+              if (c.to === curr) queueUp.push(c.from);
+            });
+          }
         }
       }
       
